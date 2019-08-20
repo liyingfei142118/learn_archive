@@ -1,0 +1,1 @@
+cmd_/home/ts/learn_archive/globalfifo/globalfifo.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/ts/learn_archive/globalfifo/globalfifo.ko /home/ts/learn_archive/globalfifo/globalfifo.o /home/ts/learn_archive/globalfifo/globalfifo.mod.o ;  true
