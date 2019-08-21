@@ -37,7 +37,15 @@ struct globalfifo_dev
   struct semaphore sem;/*并发控制用的信号量*/
   wait_queue_head_t r_wait;/*阻塞读用的等待队列头*/
   wait_queue_head_t w_wait;/*阻塞写用的等待队列头*/
+  struct fasync_struct *async_queue;
 };
+
+static int globalfifo_fasync(int fd, struct file *filp, int mode)
+{
+	struct globalfifo_dev *dev = filp->private_data;
+	
+	return fasync_helper(fd, filp, mode, &dev->async_queue);
+}
 
 struct globalfifo_dev *globalfifo_devp; /*设备结构体指针*/
 /*文件打开函数*/
@@ -53,6 +61,7 @@ int globalfifo_open(struct inode *inode, struct file *filp)
 /*文件释放函数*/
 int globalfifo_release(struct inode *inode, struct file *filp)
 {
+  globalfifo_fasync(-1, filp, 0);
   return 0;
 }
 
@@ -210,6 +219,12 @@ printk("#####################################################write");
     printk(KERN_INFO"write %d bytes(s),current_len:%d \n",size,dev->current_len);
     
     wake_up_interruptible(&dev->r_wait);/*唤醒写等待队列*/
+    
+    if(dev->async_queue)
+    {
+	kill_fasync(&dev->async_queue, SIGIO, POLL_IN);
+	printk(KERN_DEBUG "kill SIGIO\n");
+    }    
     ret= size;
   }
   out:
@@ -252,6 +267,7 @@ static const struct file_operations globalfifo_fops =
   .write = globalfifo_write,
   .compat_ioctl = globalfifo_ioctl,
   .open = globalfifo_open,
+  .fasync = globalfifo_fasync,
   .release = globalfifo_release,
   .poll = globalfifo_poll,
 };
