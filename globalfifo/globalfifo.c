@@ -43,6 +43,7 @@ struct globalfifo_dev *globalfifo_devp; /*设备结构体指针*/
 /*文件打开函数*/
 int globalfifo_open(struct inode *inode, struct file *filp)
 {
+  printk("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##########open\n");
   /*将设备结构体指针赋值给文件私有数据指针*/
   struct globalfifo_dev *dev;
   dev=container_of(inode->i_cdev,struct globalfifo_dev,cdev);//通过结构体成员的指针找到对应结构体的指针
@@ -59,6 +60,7 @@ int globalfifo_release(struct inode *inode, struct file *filp)
 static long globalfifo_ioctl(struct file *filp, unsigned
   int cmd, unsigned long arg)
 {
+  printk("############################ioctl\n");
   struct globalfifo_dev *dev = filp->private_data;/*获得设备结构体指针*/
 
   switch (cmd)
@@ -78,7 +80,7 @@ static long globalfifo_ioctl(struct file *filp, unsigned
 static ssize_t globalfifo_read(struct file *filp, char __user *buf, size_t size,
   loff_t *ppos)
 {
-  
+  printk("################################read");
   int ret = 0;
   struct globalfifo_dev *dev = filp->private_data; /*获得设备结构体指针*/
   DECLARE_WAITQUEUE(wait,current);/*define wait queue*/
@@ -151,6 +153,7 @@ static ssize_t globalfifo_write(struct file *filp, const char __user *buf,
   size_t size, loff_t *ppos)
 {
 
+printk("#####################################################write");
   int ret = 0;
   struct globalfifo_dev *dev = filp->private_data; /*获得设备结构体指针*/
   DECLARE_WAITQUEUE(wait,current);/*define wait queue*/
@@ -219,6 +222,7 @@ static ssize_t globalfifo_write(struct file *filp, const char __user *buf,
 
 static unsigned int globalfifo_poll(struct file *filp,poll_table *wait)
 {
+   printk("#################################poll");
     unsigned int mask=0;
     struct globalfifo_dev *dev=filp->private_data;
     if(down_interruptible(&dev->sem))
@@ -226,7 +230,7 @@ static unsigned int globalfifo_poll(struct file *filp,poll_table *wait)
             return -ERESTARTSYS;
         }
 
-    poll_wait(filp,&dev->w_wait,wait);/*将对应的等待队列头添加到poll_table*/
+    poll_wait(filp,&dev->r_wait,wait);/*将对应的等待队列头添加到poll_table*/
     poll_wait(filp,&dev->w_wait,wait);
     /*fifo非空*/
     if(dev->current_len!=0)
