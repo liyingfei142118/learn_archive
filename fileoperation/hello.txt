@@ -1,0 +1,11 @@
+fprintf#######
+fputs########fprintf#######
+fputs########
+fprintf#######
+fputs########
+fprintf#######
+fputs########
+fprintf#######
+fputs########
+fprintf#######
+fputs########

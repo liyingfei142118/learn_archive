@@ -1,0 +1,1 @@
+cmd_/home/ts/learn_archive/char/char.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/ts/learn_archive/char/char.ko /home/ts/learn_archive/char/char.o /home/ts/learn_archive/char/char.mod.o ;  true
